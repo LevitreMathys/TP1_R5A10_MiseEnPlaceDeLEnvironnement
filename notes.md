@@ -77,3 +77,24 @@
 **Q13.**INCR lit, ajoute 1 et réécrit en une seule commande. Pourquoi est-ce plus sûr que de faire un GET, d'ajouter 1 dans le code C#, puis un SET, si 200 joueurs déclenchent le compteur au même moment ? (Pensez à ce que vous avez vu en 5.2.)
 
 > ```INCR``` est plus sûr car si 200 utilisateurs changent une valeur en même temps avec le code C# cela peut faire ralentir et mettre les 199 autres utilisateurs en attente.
+
+**Q14.** Les deux jeux sont dans la même collection, mais n'ont pas les mêmes champs (plateformes est une liste, multijoueur un objet imbriqué). Aurait-on pu ranger les deux dans une même table PostgreSQL ? À quel prix ? Rapprochez votre réponse de l'exercice du catalogue de jeux (section 2 du cours CM1_etudiants_Panorama.md).
+
+> La manipulation est possible au prix de nombreuses données qui seront ```NULL```
+
+
+**Q15.** La requête « ami d'un ami » se lit presque comme un dessin. Comment l'écririez-vous en SQL, avec une table `Amities(joueur_id, ami_id)` ? Combien de jointures faudrait-il pour « ami d'un ami d'un ami » ?
+
+>Pour écrire cette requête en SQL il faudrait faire une seule jointure entre deux même tables amitiés.
+
+**Q16.** Pourquoi `DELETE` seul a-t-il été refusé ? Que fait `DETACH` de plus ?
+
+> `DELETE` a été refusé car les noeuds avait des relation entre eux. Pour remedier à ce problème on utilise `DETACHE` pour spécifier qu'il faut supprimer toute relation des noeuds avant de les supprimer.
+
+---
+
+## Étape 7 — Les données survivent-elles ? Arrêter proprement (10 min)
+
+**Q17.** La clé `survivant` a-t-elle survécu au `stop` ? Au `down` ? Et les joueurs de PostgreSQL ? Expliquez la différence avec le mot **volume**.
+
+> La donnée `survivant` a survecu au `docker compose stop` car seules le conteneur est arreté mais les volumes sont conservé. Tandis que le `docker compose down` a supprimé les conteneur et les données car `Redis` n'a pas de volume
