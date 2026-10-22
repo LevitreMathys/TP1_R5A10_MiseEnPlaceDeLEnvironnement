@@ -98,3 +98,37 @@
 **Q17.** La clé `survivant` a-t-elle survécu au `stop` ? Au `down` ? Et les joueurs de PostgreSQL ? Expliquez la différence avec le mot **volume**.
 
 > La donnée `survivant` a survecu au `docker compose stop` car seules le conteneur est arreté mais les volumes sont conservé. Tandis que le `docker compose down` a supprimé les conteneur et les données car `Redis` n'a pas de volume
+
+# TP 2 — Le catalogue de jeux dans MongoDB
+
+---
+
+## Partie 1 — MongoDB sans C# (20 min)
+
+**Q1.** Vous retrouvez le champ `_id`, déjà aperçu au TP 1 (étape 6.2), que personne n'a écrit dans `games.json`. Cette fois, intéressez-vous à **qui l'a fabriqué** : le serveur MongoDB, ou l'outil qui a envoyé les documents (`mongoimport`) ? Comparez avec l'`Id` 4 de *Pixel* au TP 1 (Q8) : qui l'avait choisi, et à quel moment le connaissiez-vous ?
+> C'est l'outils mongoimport côté client qui ajoute l'Id. Pour le TP1, c'est au moment du saveChanges() que l'id est attribué.
+
+**Q2.** À l'exercice 5, plateformes est un tableau et vous avez écrit { plateformes: "Switch" }, sans opérateur particulier. Comment auriez-vous fait la même chose en SQL, avec un modèle relationnel normalisé ?
+
+> Pour faire la même chose en SQL il faudrait une table intermediaire `jeu_plateformes(jeu_id, plateforme_id)`
+
+**Q3.** Vous tapez --authenticationDatabase admin depuis le TP 1 sans qu'on vous ait dit pourquoi. Pourquoi faut-il l'ajouter aux commandes mongoimport et mongosh ? Où se trouve le compte pixelhub ?
+
+**Q4.** Personne ne vous a arrêté. Est-ce une bonne nouvelle ou un problème ? Argumentez en imaginant un projet à quatre développeurs, six mois plus tard.
+
+**Q5.** Le résultat de l'exercice 9 vous surprend-il ? Que s'est-il passé exactement, et pourquoi n'y a-t-il eu aucun message d'erreur ?
+> MongoDb est sensible à la casse donc Jeux != jeux. Et au lieu d'envoyer un message d'erreur il renvoie une réponse vide.
+
+**Q6.** L'exercice 16 échoue. Recopiez le message d'erreur, et expliquez pourquoi MongoDB refuse. Quelle commande utiliseriez-vous si vous vouliez réellement remplacer le document en entier ?
+> Le message d'erreur est `MongoInvalidArgumentError: Update document requires atomic operators`. MongoDb refuse de changer la valeur car il lui manque un opérateur pour pouvoir intéragir avec la donnée dans le cas d'un changement de valeur il aurait fallu l'opérateur `$set` donc la commande aurait été : `db.jeux.updateOne({ titre: "Valorant" }, {$set: {note: 4.4 } })`
+
+**Q7.** À l'exercice 12, vous avez ajouté un champ nbVotes à un seul document, alors que les dix autres n'en ont pas. Quelle commande SQL aurait été nécessaire pour faire l'équivalent en relationnel, et quelle en aurait été la conséquence sur les autres lignes ?
+
+> La commande SQL nécessaire aurait été : `ALTER TABLE jeux ADD COLUMN nb_votes INTEGER;` mais en SQL chaque table à un schéma fixe pour toutes les données, cela implqiue donc que tous les jeux aurait eu le même schéma de données et donc les 10 autres jeux aurait la valeur `NULL` à `nbVotes`.
+
+---
+
+## Partie 2 — MongoDB dans PixelHub (25 min)
+
+**Q8.** Lisez `IGameCatalog`. Y a-t-il un seul endroit dans cette interface où le mot « Mongo » apparaît ? Pourquoi est-ce important, à votre avis ?
+> Dans le fichier `IGameCatalog` il n'y a aucune référence à MongoDB car les attributs ne sont pas propre à MongoDB, ce qui permet d'utiliser d'autres technologie tout en restant sur le même schéma de table.
